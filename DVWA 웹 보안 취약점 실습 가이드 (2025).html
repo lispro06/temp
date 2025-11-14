@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light" style=""><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVWA 웹 보안 실습 강의 자료</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+    <style>
+      body {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 32px 80px;
+        position: relative;
+        box-sizing: border-box;
+        font-family: 'Noto Sans KR', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .header {
+        text-align: center;
+        border-bottom: 3px solid #333;
+        padding-bottom: 20px;
+        margin-bottom: 40px;
+      }
+
+      .warning-box {
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .warning-box strong {
+        color: #856404;
+      }
+
+      .toc {
+        background-color: #f8f9fa;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #ddd;
+      }
+
+      .toc ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      .toc li {
+        margin: 8px 0;
+        padding: 5px 0;
+      }
+
+      .toc a {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: 500;
+      }
+
+      .vulnerability-section {
+        margin: 40px 0;
+        padding: 25px;
+        border-radius: 8px;
+        border: 2px solid;
+      }
+
+      .brute-force {
+        border-color: #ff6b6b;
+        background-color: rgba(255, 107, 107, 0.05);
+      }
+      .command-injection {
+        border-color: #4ecdc4;
+        background-color: rgba(78, 205, 196, 0.05);
+      }
+      .csrf {
+        border-color: #ffe66d;
+        background-color: rgba(255, 230, 109, 0.05);
+      }
+      .file-inclusion {
+        border-color: #95e1d3;
+        background-color: rgba(149, 225, 211, 0.05);
+      }
+      .file-upload {
+        border-color: #f38181;
+        background-color: rgba(243, 129, 129, 0.05);
+      }
+      .sql-injection {
+        border-color: #aa96da;
+        background-color: rgba(170, 150, 218, 0.05);
+      }
+      .blind-sql {
+        border-color: #fcbad3;
+        background-color: rgba(252, 186, 211, 0.05);
+      }
+      .xss-reflected {
+        border-color: #a8e6cf;
+        background-color: rgba(168, 230, 207, 0.05);
+      }
+      .xss-stored {
+        border-color: #ff8b94;
+        background-color: rgba(255, 139, 148, 0.05);
+      }
+      .insecure-captcha {
+        border-color: #c7ceea;
+        background-color: rgba(199, 206, 234, 0.05);
+      }
+
+      .info-box {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+
+      .tip-box {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+
+      .code-block {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: 'Courier New', monospace;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      table th,
+      table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      table th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+      }
+
+      .problem-box {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+
+      .security-level {
+        font-weight: bold;
+        color: #495057;
+        margin-top: 20px;
+      }
+
+      .footer {
+        margin-top: 60px;
+        padding-top: 20px;
+        border-top: 2px solid #333;
+        text-align: center;
+        font-size: 0.9em;
+        color: #666;
+      }
+
+      h1 {
+        color: #2c3e50;
+      }
+      h2 {
+        color: #34495e;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #5d6d7e;
+        margin-top: 20px;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        max-width: 200px;
+      }
+    </style>
+  </head>
+  <body style="">
+    <div class="nav-menu">
+      <strong>빠른 이동</strong>
+      <ul style="list-style: none; padding-left: 0; margin: 5px 0">
+        <li><a href="#toc">목차</a></li>
+        <li><a href="#brute-force">Brute Force</a></li>
+        <li><a href="#command-injection">Command Injection</a></li>
+        <li><a href="#csrf">CSRF</a></li>
+        <li><a href="#file-inclusion">File Inclusion</a></li>
+        <li><a href="#file-upload">File Upload</a></li>
+        <li><a href="#sql-injection">SQL Injection</a></li>
+        <li><a href="#blind-sql">Blind SQL</a></li>
+        <li><a href="#xss-reflected">XSS Reflected</a></li>
+        <li><a href="#xss-stored">XSS Stored</a></li>
+        <li><a href="#insecure-captcha">Insecure CAPTCHA</a></li>
+      </ul>
+    </div>
+
+    <div class="header">
+      <h1>DVWA 웹 보안 실습 강의 자료</h1>
+      <h2>10가지 주요 웹 취약점 실습 가이드</h2>
+      <p><em>Damn Vulnerable Web Application을 활용한 체계적 웹 보안 학습</em></p>
+
+      <div class="warning-box">
+        <strong>⚠️ 윤리적 해킹 준수 사항</strong><br>
+        본 실습 자료는 교육 목적으로만 사용되어야 합니다. 허가받지 않은 시스템에 대한 공격 시도는 불법행위입니다. 실습은
+        반드시 격리된 환경에서만 진행하시기 바랍니다.
+      </div>
+    </div>
+
+    <div id="toc" class="toc">
+      <h2>📋 목차</h2>
+      <ul>
+        <li><a href="#brute-force">1. Brute Force (무차별 대입 공격)</a></li>
+        <li><a href="#command-injection">2. Command Injection (명령어 삽입)</a></li>
+        <li><a href="#csrf">3. CSRF (Cross-Site Request Forgery, 사이트 간 요청 위조)</a></li>
+        <li><a href="#file-inclusion">4. File Inclusion (파일 포함 취약점)</a></li>
+        <li><a href="#file-upload">5. File Upload (파일 업로드 취약점)</a></li>
+        <li><a href="#sql-injection">6. SQL Injection (SQL 인젝션)</a></li>
+        <li><a href="#blind-sql">7. SQL Injection (Blind) (블라인드 SQL 인젝션)</a></li>
+        <li><a href="#xss-reflected">8. XSS (Reflected) (반사형 XSS)</a></li>
+        <li><a href="#xss-stored">9. XSS (Stored) (저장형 XSS)</a></li>
+        <li><a href="#insecure-captcha">10. Insecure CAPTCHA (취약한 캡차)</a></li>
+      </ul>
+    </div>
+
+    <div id="brute-force" class="vulnerability-section brute-force">
+      <h2>1. Brute Force (무차별 대입 공격)</h2>
+
+      <h3>1.1 취약점 개요</h3>
+      <p>
+        무차별 대입 공격(Brute Force Attack)은 가능한 모든 조합을 시도하여 패스워드나 인증 정보를 찾아내는 공격
+        방법입니다. 이는 OWASP Top 10 2021에서 "A07:2021 – Identification and Authentication Failures"에 해당됩니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2020년, 트위터 계정 대량 해킹 사건에서 공격자들이 간단한 패스워드에 대한 무차별 대입
+        공격을 사용했습니다.
+      </div>
+
+      <h3>1.2 공격 원리</h3>
+      <p>공격자는 다음과 같은 흐름으로 공격을 수행합니다:</p>
+      <ol>
+        <li>대상 로그인 폼 식별</li>
+        <li>사용자명 리스트 준비 (예: admin, user, test)</li>
+        <li>패스워드 사전 파일 준비</li>
+        <li>자동화 도구를 이용한 조합 시도</li>
+        <li>성공적인 로그인 식별</li>
+      </ol>
+
+      <h3>1.3 실습 환경 설정</h3>
+      <table>
+        <tbody><tr>
+          <th>보안 레벨</th>
+          <th>특징</th>
+          <th>필요 도구</th>
+        </tr>
+        <tr>
+          <td>Low</td>
+          <td>제한 없음</td>
+          <td>Hydra, Burp Suite</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>간단한 지연</td>
+          <td>Hydra (시간 조정), Custom Script</td>
+        </tr>
+        <tr>
+          <td>High</td>
+          <td>CSRF 토큰, 계정 잠금</td>
+          <td>Burp Suite Pro, Manual Testing</td>
+        </tr>
+      </tbody></table>
+
+      <h3>1.4 실습 문제</h3>
+
+      <div class="security-level">Low Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 수동 공격</strong><br>
+        DVWA의 Brute Force 페이지에서 admin 계정에 대해 common passwords (password, 123456, admin)를 수동으로
+        시도해보세요.
+        <br><strong>목표:</strong> 올바른 패스워드 발견
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: Hydra를 이용한 자동화 공격</strong><br>
+        <div class="code-block">
+          hydra -l admin -P /usr/share/wordlists/rockyou.txt dvwa.local http-get-form
+          "/vulnerabilities/brute/:username=^USER^&amp;password=^PASS^&amp;Login=Login:Username and/or password
+          incorrect.:H=Cookie: PHPSESSID=your_session_id; security=low"
+        </div>
+        <strong>목표:</strong> 자동화 도구로 패스워드 크래킹
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: Burp Suite Intruder 활용</strong><br>
+        Burp Suite의 Intruder 기능을 사용하여 사용자명과 패스워드 조합 공격을 수행하세요.
+        <br><strong>목표:</strong> GUI 도구를 이용한 체계적 공격
+      </div>
+
+      <div class="security-level">Medium Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 시간 지연 우회</strong><br>
+        Medium 레벨에서 적용된 2초 지연을 고려하여 공격 속도를 조정해보세요.
+        <br><strong>목표:</strong> 시간 제한 우회 기법 습득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 멀티스레딩 공격</strong><br>
+        여러 세션을 동시에 사용하여 시간 지연을 우회하는 방법을 시도해보세요.
+        <br><strong>목표:</strong> 병렬 처리를 통한 효율성 증대
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 스크립트 최적화</strong><br>
+        Python이나 다른 언어로 커스텀 스크립트를 작성하여 더 효율적인 공격을 수행해보세요.
+        <br><strong>목표:</strong> 맞춤형 공격 도구 개발
+      </div>
+
+      <div class="security-level">High Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: CSRF 토큰 처리</strong><br>
+        High 레벨에서 적용된 CSRF 토큰을 자동으로 추출하고 사용하는 스크립트를 작성해보세요.
+        <br><strong>목표:</strong> 동적 토큰 처리 기법 습득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 계정 잠금 우회</strong><br>
+        실패 횟수 제한을 우회하기 위한 다양한 방법을 시도해보세요 (IP 변경, 사용자명 순환 등).
+        <br><strong>목표:</strong> 고급 우회 기법 습득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 종합 공격 시나리오</strong><br>
+        모든 보안 메커니즘을 우회하는 종합적인 공격 시나리오를 설계하고 실행해보세요.
+        <br><strong>목표:</strong> 실전 수준의 공격 수행
+      </div>
+
+      <h3>1.5 예상 결과</h3>
+      <div class="info-box">
+        <strong>성공 지표:</strong>
+        <ul>
+          <li>Low: "Welcome to the password protected area admin" 메시지 출력</li>
+          <li>Medium: 시간 지연에도 불구하고 성공적 로그인</li>
+          <li>High: CSRF 토큰 처리 후 성공적 인증</li>
+        </ul>
+        <strong>일반적 오류:</strong> "Username and/or password incorrect" 메시지
+      </div>
+
+      <h3>1.6 방어 기법</h3>
+      <ul>
+        <li><strong>계정 잠금 정책:</strong> 연속 실패 시 일정 시간 계정 잠금</li>
+        <li><strong>CAPTCHA 구현:</strong> 자동화 도구 방지</li>
+        <li><strong>강력한 패스워드 정책:</strong> 복잡성 요구사항 강화</li>
+        <li><strong>다단계 인증(MFA):</strong> 추가 인증 요소 도입</li>
+        <li><strong>로그 모니터링:</strong> 비정상적인 로그인 시도 탐지</li>
+      </ul>
+
+      <div class="code-block">
+        // 안전한 로그인 구현 예시 if ($failed_attempts &gt;= 5) { $lockout_time = time() + (15 * 60); // 15분 잠금 // 계정
+        잠금 로직 } // 강력한 패스워드 검증 if
+        (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}$/', $password)) { // 패스워드
+        정책 위반 }
+      </div>
+
+      <h3>1.7 실습 팁</h3>
+      <div class="tip-box">
+        <ul>
+          <li>일반적인 패스워드 리스트: password, 123456, admin, guest, root</li>
+          <li>Hydra 사용 시 -t 옵션으로 스레드 수 조정</li>
+          <li>Burp Suite에서 Payload Processing 기능 활용</li>
+          <li>실습 시 네트워크 트래픽 모니터링으로 이해도 증진</li>
+        </ul>
+      </div>
+
+      <h3>1.8 참고 자료</h3>
+      <ul>
+        <li>
+          <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 A07:2021</a>
+        </li>
+        <li><a href="https://github.com/vanhauser-thc/thc-hydra">THC Hydra GitHub</a></li>
+        <li>
+          <a href="https://portswigger.net/web-security/authentication/password-based">PortSwigger Authentication Vulnerabilities</a>
+        </li>
+      </ul>
+    </div>
+
+    <div id="command-injection" class="vulnerability-section command-injection">
+      <h2>2. Command Injection (명령어 삽입)</h2>
+
+      <h3>2.1 취약점 개요</h3>
+      <p>
+        명령어 삽입(Command Injection) 취약점은 애플리케이션이 사용자 입력을 적절히 검증하지 않고 시스템 명령어로 전달할
+        때 발생합니다. 이는 OWASP Top 10 2021에서 "A03:2021 – Injection"에 해당됩니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2017년 Equifax 해킹 사건에서 Apache Struts의 명령어 삽입 취약점이 악용되어 1억 4천만
+        명의 개인정보가 유출되었습니다.
+      </div>
+
+      <h3>2.2 공격 원리</h3>
+      <p>공격 흐름:</p>
+      <ol>
+        <li>사용자 입력을 받는 기능 식별 (예: ping, nslookup)</li>
+        <li>입력 필터링 메커니즘 분석</li>
+        <li>명령어 구분자를 이용한 추가 명령 삽입 (; | &amp; ||)</li>
+        <li>시스템 정보 수집 또는 악의적 행위 수행</li>
+      </ol>
+
+      <h3>2.3 실습 환경 설정</h3>
+      <table>
+        <tbody><tr>
+          <th>보안 레벨</th>
+          <th>특징</th>
+          <th>필요 도구</th>
+        </tr>
+        <tr>
+          <td>Low</td>
+          <td>필터링 없음</td>
+          <td>웹 브라우저, Burp Suite</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>기본 문자 필터링</td>
+          <td>인코딩 도구, 우회 기법</td>
+        </tr>
+        <tr>
+          <td>High</td>
+          <td>강화된 필터링</td>
+          <td>고급 우회 기법, 커스텀 페이로드</td>
+        </tr>
+      </tbody></table>
+
+      <h3>2.4 실습 문제</h3>
+
+      <div class="security-level">Low Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 명령 삽입</strong><br>
+        ping 기능에 다음 입력을 시도해보세요: <code>127.0.0.1; whoami</code> <br><strong>목표:</strong> 현재 실행
+        사용자 확인
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 파일 시스템 탐색</strong><br>
+        다음 페이로드를 사용해 시스템 파일을 확인해보세요: <code>127.0.0.1; ls -la</code> (Linux) 또는
+        <code>127.0.0.1 &amp; dir</code> (Windows) <br><strong>목표:</strong> 서버 파일 시스템 구조 파악
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 시스템 정보 수집</strong><br>
+        <code>127.0.0.1; uname -a; id</code>를 사용해 시스템 정보와 권한을 확인해보세요. <br><strong>목표:</strong>
+        종합적인 시스템 정보 획득
+      </div>
+
+      <div class="security-level">Medium Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 필터 우회</strong><br>
+        세미콜론(;)이 필터링되는 경우 다른 구분자(&amp;, |, ||)를 사용해보세요.
+        <br><strong>목표:</strong> 문자 필터링 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 인코딩을 통한 우회</strong><br>
+        URL 인코딩이나 다른 인코딩 방식을 사용해 필터를 우회해보세요.
+        <br><strong>목표:</strong> 인코딩 기반 우회 기법 습득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 대체 명령어 사용</strong><br>
+        필터링된 명령어 대신 유사한 기능의 대체 명령어를 사용해보세요 (cat → more, ls → echo *).
+        <br><strong>목표:</strong> 명령어 대체 기법 활용
+      </div>
+
+      <div class="security-level">High Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 고급 우회 기법</strong><br>
+        문자열 연결, 변수 사용 등 고급 기법으로 필터를 우회해보세요.
+        <br><strong>목표:</strong> 복잡한 필터링 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 타임 기반 블라인드 인젝션</strong><br>
+        출력이 제한된 경우 시간 지연을 이용한 블라인드 인젝션을 시도해보세요.
+        <br><strong>목표:</strong> 간접적 명령 실행 확인
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 리버스 쉘 구축</strong><br>
+        netcat이나 다른 도구를 사용해 리버스 쉘 연결을 시도해보세요.
+        <br><strong>목표:</strong> 지속적인 시스템 접근 확보
+      </div>
+
+      <h3>2.5 예상 결과</h3>
+      <div class="info-box">
+        <strong>성공 지표:</strong>
+        <ul>
+          <li>Low: ping 결과와 함께 whoami 명령 결과 출력</li>
+          <li>Medium: 우회된 명령어의 실행 결과 확인</li>
+          <li>High: 고급 기법을 통한 명령 실행 성공</li>
+        </ul>
+        <strong>일반적 오류:</strong> 명령어가 필터링되거나 구문 오류 발생
+      </div>
+
+      <h3>2.6 방어 기법</h3>
+      <ul>
+        <li><strong>입력 검증:</strong> 화이트리스트 기반 입력 검증</li>
+        <li><strong>명령어 실행 금지:</strong> system(), exec() 함수 사용 제한</li>
+        <li><strong>샌드박스:</strong> 제한된 환경에서 코드 실행</li>
+        <li><strong>최소 권한 원칙:</strong> 애플리케이션 실행 권한 최소화</li>
+      </ul>
+
+      <div class="code-block">
+        // 안전한 입력 처리 예시 function safe_ping($ip) { // IP 주소 유효성 검사 if (!filter_var($ip,
+        FILTER_VALIDATE_IP)) { return false; } // 안전한 명령 실행 $escaped_ip = escapeshellarg($ip); $output =
+        shell_exec("ping -c 4 $escaped_ip"); return $output; }
+      </div>
+
+      <h3>2.7 실습 팁</h3>
+      <div class="tip-box">
+        <ul>
+          <li>일반적인 구분자: ; &amp; | || &amp;&amp; ` $() ${}</li>
+          <li>인코딩 우회: %3B (;), %26 (&amp;), %7C (|)</li>
+          <li>대체 명령어 활용: cat → more, less, head, tail</li>
+          <li>Burp Suite Repeater로 다양한 페이로드 테스트</li>
+        </ul>
+      </div>
+
+      <h3>2.8 참고 자료</h3>
+      <ul>
+        <li><a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 A03:2021</a></li>
+        <li><a href="https://portswigger.net/web-security/os-command-injection">PortSwigger Command Injection</a></li>
+        <li>
+          <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection">Command Injection Payloads</a>
+        </li>
+      </ul>
+    </div>
+
+    <div id="csrf" class="vulnerability-section csrf">
+      <h2>3. CSRF (Cross-Site Request Forgery, 사이트 간 요청 위조)</h2>
+
+      <h3>3.1 취약점 개요</h3>
+      <p>
+        CSRF(Cross-Site Request Forgery) 공격은 인증된 사용자가 자신의 의지와 무관하게 공격자가 의도한 행위를 특정
+        웹사이트에 요청하게 만드는 공격입니다. 이는 OWASP Top 10에서 지속적으로 중요한 보안 위협으로 분류됩니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2008년 uTorrent의 CSRF 취약점을 통해 공격자가 사용자 모르게 토렌트 파일을
+        다운로드하도록 하는 공격이 발생했습니다.
+      </div>
+
+      <h3>3.2 공격 원리</h3>
+      <p>CSRF 공격 흐름:</p>
+      <ol>
+        <li>사용자가 대상 웹사이트에 로그인하여 인증 상태 유지</li>
+        <li>공격자가 악성 웹페이지나 이메일을 사용자에게 전송</li>
+        <li>사용자가 악성 콘텐츠를 클릭하거나 방문</li>
+        <li>사용자 브라우저가 자동으로 대상 사이트에 요청 전송</li>
+        <li>서버가 인증된 사용자의 요청으로 인식하여 처리</li>
+      </ol>
+
+      <h3>3.3 실습 환경 설정</h3>
+      <table>
+        <tbody><tr>
+          <th>보안 레벨</th>
+          <th>특징</th>
+          <th>필요 도구</th>
+        </tr>
+        <tr>
+          <td>Low</td>
+          <td>CSRF 보호 없음</td>
+          <td>HTML 에디터, 웹 브라우저</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>Referer 헤더 검증</td>
+          <td>Burp Suite, 프록시 도구</td>
+        </tr>
+        <tr>
+          <td>High</td>
+          <td>CSRF 토큰 사용</td>
+          <td>JavaScript, 고급 기법</td>
+        </tr>
+      </tbody></table>
+
+      <h3>3.4 실습 문제</h3>
+
+      <div class="security-level">Low Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 CSRF 공격</strong><br>
+        패스워드 변경 기능에 대한 간단한 HTML 폼을 작성하여 CSRF 공격을 시도해보세요.
+        <br><strong>목표:</strong> 사용자 패스워드 무단 변경
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 이미지 태그를 이용한 CSRF</strong><br>
+        &lt;img&gt; 태그의 src 속성을 이용해 GET 방식 CSRF 공격을 수행해보세요.
+        <br><strong>목표:</strong> 보이지 않는 CSRF 공격 구현
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: JavaScript 자동 제출</strong><br>
+        JavaScript를 사용하여 폼을 자동으로 제출하는 CSRF 공격을 구현해보세요.
+        <br><strong>목표:</strong> 사용자 상호작용 없는 자동 공격
+      </div>
+
+      <div class="security-level">Medium Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: Referer 헤더 우회</strong><br>
+        Referer 검증을 우회하기 위한 다양한 방법을 시도해보세요.
+        <br><strong>목표:</strong> Referer 기반 보안 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 메타 태그를 이용한 Referer 제거</strong><br>
+        &lt;meta name="referrer" content="no-referrer"&gt;를 사용해 Referer 헤더를 제거해보세요.
+        <br><strong>목표:</strong> HTTP 헤더 조작 기법
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 도메인 스푸핑</strong><br>
+        서브도메인이나 유사한 도메인을 이용해 Referer 검증을 우회해보세요.
+        <br><strong>목표:</strong> 도메인 기반 우회 기법
+      </div>
+
+      <div class="security-level">High Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: CSRF 토큰 추출</strong><br>
+        JavaScript를 사용해 CSRF 토큰을 동적으로 추출하고 사용하는 방법을 시도해보세요.
+        <br><strong>목표:</strong> 동적 토큰 처리
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: XSS와 CSRF 조합 공격</strong><br>
+        XSS 취약점을 이용해 CSRF 토큰을 우회하는 공격을 설계해보세요.
+        <br><strong>목표:</strong> 복합 공격 기법 습득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 소셜 엔지니어링 결합</strong><br>
+        사회공학적 기법과 결합한 현실적인 CSRF 공격 시나리오를 구현해보세요.
+        <br><strong>목표:</strong> 실전 공격 시나리오 구현
+      </div>
+
+      <h3>3.5 예상 결과</h3>
+      <div class="info-box">
+        <strong>성공 지표:</strong>
+        <ul>
+          <li>Low: "Password Changed" 메시지 표시</li>
+          <li>Medium: Referer 우회 후 성공적인 패스워드 변경</li>
+          <li>High: CSRF 토큰 처리 후 공격 성공</li>
+        </ul>
+        <strong>일반적 오류:</strong> "Invalid token" 또는 "Invalid referer" 메시지
+      </div>
+
+      <h3>3.6 방어 기법</h3>
+      <ul>
+        <li><strong>CSRF 토큰:</strong> 예측 불가능한 토큰을 폼에 포함</li>
+        <li><strong>SameSite 쿠키:</strong> 크로스 사이트 요청 시 쿠키 전송 제한</li>
+        <li><strong>Referer 검증:</strong> 요청 출처 확인 (완전하지 않음)</li>
+        <li><strong>Double Submit Cookie:</strong> 쿠키와 폼 데이터 비교</li>
+        <li><strong>커스텀 헤더:</strong> AJAX 요청에 커스텀 헤더 요구</li>
+      </ul>
+
+      <div class="code-block">
+        // 안전한 CSRF 방어 구현 // 1. CSRF 토큰 생성 function generateCSRFToken() { return bin2hex(random_bytes(32)); }
+        // 2. 토큰 검증 function verifyCSRFToken($token) { return hash_equals($_SESSION['csrf_token'], $token); } // 3.
+        SameSite 쿠키 설정 setcookie('session', $session_id, [ 'samesite' =&gt; 'Strict', 'secure' =&gt; true, 'httponly' =&gt;
+        true ]);
+      </div>
+
+      <h3>3.7 실습 팁</h3>
+      <div class="tip-box">
+        <ul>
+          <li>CSRF 공격은 GET과 POST 모두에서 가능합니다</li>
+          <li>iframe을 사용하면 공격을 숨길 수 있습니다</li>
+          <li>XMLHttpRequest는 SOP 제한으로 제약이 있습니다</li>
+          <li>소셜 엔지니어링과 결합하면 효과적입니다</li>
+        </ul>
+      </div>
+
+      <h3>3.8 참고 자료</h3>
+      <ul>
+        <li><a href="https://owasp.org/www-community/attacks/csrf">OWASP CSRF</a></li>
+        <li><a href="https://portswigger.net/web-security/csrf">PortSwigger CSRF</a></li>
+        <li>
+          <a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">CSRF Prevention Cheat Sheet</a>
+        </li>
+      </ul>
+    </div>
+
+    <div id="file-inclusion" class="vulnerability-section file-inclusion">
+      <h2>4. File Inclusion (파일 포함 취약점)</h2>
+
+      <h3>4.1 취약점 개요</h3>
+      <p>
+        파일 포함 취약점은 웹 애플리케이션이 사용자 입력을 통해 동적으로 파일을 포함시킬 때 적절한 검증 없이 임의의
+        파일에 접근할 수 있게 되는 보안 취약점입니다. LFI(Local File Inclusion)와 RFI(Remote File Inclusion)로
+        구분됩니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2019년 WordPress의 여러 테마와 플러그인에서 LFI 취약점이 발견되어 서버의 민감한
+        파일이 노출되는 사건이 발생했습니다.
+      </div>
+
+      <h3>4.2 공격 원리</h3>
+      <p>파일 포함 공격 흐름:</p>
+      <ol>
+        <li>파일 경로를 매개변수로 받는 기능 식별</li>
+        <li>경로 순회(Directory Traversal) 시도</li>
+        <li>시스템 파일 접근 시도 (/etc/passwd, /proc/version 등)</li>
+        <li>원격 파일 포함 시도 (RFI의 경우)</li>
+        <li>로그 포이즈닝을 통한 코드 실행</li>
+      </ol>
+
+      <h3>4.3 실습 환경 설정</h3>
+      <table>
+        <tbody><tr>
+          <th>보안 레벨</th>
+          <th>특징</th>
+          <th>필요 도구</th>
+        </tr>
+        <tr>
+          <td>Low</td>
+          <td>필터링 없음</td>
+          <td>웹 브라우저, Burp Suite</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>기본 경로 필터링</td>
+          <td>인코딩 도구, 우회 기법</td>
+        </tr>
+        <tr>
+          <td>High</td>
+          <td>화이트리스트 검증</td>
+          <td>고급 우회 기법, 로그 포이즈닝</td>
+        </tr>
+      </tbody></table>
+
+      <h3>4.4 실습 문제</h3>
+
+      <div class="security-level">Low Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 LFI 공격</strong><br>
+        파일 매개변수에 <code>../../../etc/passwd</code>를 입력하여 시스템 사용자 정보를 확인해보세요. <br><strong>목표:</strong>
+        Linux 시스템 사용자 목록 획득
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 웹 서버 로그 파일 접근</strong><br>
+        <code>../../../var/log/apache2/access.log</code>를 통해 웹 서버 로그에 접근해보세요. <br><strong>목표:</strong>
+        서버 로그 정보 수집
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: PHP 설정 파일 확인</strong><br>
+        <code>../../../etc/php/7.4/apache2/php.ini</code> 등으로 PHP 설정을 확인해보세요. <br><strong>목표:</strong>
+        서버 환경 설정 정보 수집
+      </div>
+
+      <div class="security-level">Medium Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 경로 순회 필터 우회</strong><br>
+        ../ 이 필터링되는 경우 다양한 우회 기법을 시도해보세요 (....//, ..\/, %2e%2e%2f).
+        <br><strong>목표:</strong> 경로 필터링 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: NULL 바이트 인젝션</strong><br>
+        파일 확장자가 강제되는 경우 NULL 바이트(%00)를 사용해 우회해보세요.
+        <br><strong>목표:</strong> 확장자 제한 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 더블 인코딩</strong><br>
+        URL 인코딩을 두 번 적용하여 필터를 우회해보세요 (%252e%252e%252f).
+        <br><strong>목표:</strong> 인코딩 기반 우회
+      </div>
+
+      <div class="security-level">High Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 로그 포이즈닝</strong><br>
+        User-Agent 헤더에 PHP 코드를 삽입한 후 로그 파일을 포함시켜 코드 실행을 시도해보세요.
+        <br><strong>목표:</strong> 로그 파일을 통한 코드 실행
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: PHP Wrapper 활용</strong><br>
+        php://filter/convert.base64-encode/resource= 등의 PHP wrapper를 사용해보세요.
+        <br><strong>목표:</strong> 고급 파일 접근 기법
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: RFI 공격 (가능한 경우)</strong><br>
+        allow_url_include이 활성화된 경우 원격 파일 포함을 시도해보세요.
+        <br><strong>목표:</strong> 원격 코드 실행
+      </div>
+
+      <h3>4.5 예상 결과</h3>
+      <div class="info-box">
+        <strong>성공 지표:</strong>
+        <ul>
+          <li>Low: /etc/passwd 파일 내용 출력 (root:x:0:0:root:/root:/bin/bash...)</li>
+          <li>Medium: 우회 기법으로 시스템 파일 접근 성공</li>
+          <li>High: 로그 포이즈닝으로 PHP 코드 실행 결과 확인</li>
+        </ul>
+        <strong>일반적 오류:</strong> "Warning: include(): Failed opening..." 메시지
+      </div>
+
+      <h3>4.6 방어 기법</h3>
+      <ul>
+        <li><strong>화이트리스트 검증:</strong> 허용된 파일만 포함 가능하도록 제한</li>
+        <li><strong>경로 정규화:</strong> realpath() 함수로 절대 경로 확인</li>
+        <li><strong>chroot jail:</strong> 파일 시스템 접근 범위 제한</li>
+        <li><strong>PHP 설정:</strong> allow_url_include = Off, open_basedir 설정</li>
+      </ul>
+
+      <div class="code-block">
+        // 안전한 파일 포함 구현 function safe_include($filename) { // 화이트리스트 검증 $allowed_files = ['home.php',
+        'about.php', 'contact.php']; if (!in_array($filename, $allowed_files)) { return false; } // 절대 경로 확인
+        $real_path = realpath('./pages/' . $filename); $base_path = realpath('./pages/'); // 베이스 디렉토리 내부 확인
+        if (strpos($real_path, $base_path) !== 0) { return false; } include $real_path; return true; }
+      </div>
+
+      <h3>4.7 실습 팁</h3>
+      <div class="tip-box">
+        <ul>
+          <li>Linux 주요 파일: /etc/passwd, /proc/version, /proc/self/environ</li>
+          <li>Windows 주요 파일: C:\Windows\System32\drivers\etc\hosts, C:\boot.ini</li>
+          <li>로그 파일 위치: /var/log/apache2/, /var/log/nginx/</li>
+          <li>PHP Wrapper: php://filter, data://, expect://</li>
+        </ul>
+      </div>
+
+      <h3>4.8 참고 자료</h3>
+      <ul>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/07-Input_Validation_Testing/11.1-Testing_for_Local_File_Inclusion">OWASP LFI Testing</a>
+        </li>
+        <li>
+          <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/File%20Inclusion">File Inclusion Payloads</a>
+        </li>
+        <li><a href="https://portswigger.net/web-security/file-path-traversal">PortSwigger Path Traversal</a></li>
+      </ul>
+    </div>
+
+    <div id="file-upload" class="vulnerability-section file-upload">
+      <h2>5. File Upload (파일 업로드 취약점)</h2>
+
+      <h3>5.1 취약점 개요</h3>
+      <p>
+        파일 업로드 취약점은 웹 애플리케이션이 파일 업로드 기능에서 적절한 검증 없이 악의적인 파일의 업로드를 허용하여
+        서버에서 임의의 코드가 실행될 수 있게 하는 보안 취약점입니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2017년 NotPetya 랜섬웨어는 우크라이나의 회계 소프트웨어 업데이트 서버를 통해
+        확산되었으며, 파일 업로드 취약점이 초기 침투 벡터 중 하나였습니다.
+      </div>
+
+      <h3>5.2 공격 원리</h3>
+      <p>파일 업로드 공격 흐름:</p>
+      <ol>
+        <li>파일 업로드 기능 식별</li>
+        <li>파일 타입 검증 메커니즘 분석</li>
+        <li>악성 파일 (웹쉘, 스크립트) 준비</li>
+        <li>검증 우회 기법 적용</li>
+        <li>업로드된 파일에 직접 접근하여 코드 실행</li>
+      </ol>
+
+      <h3>5.3 실습 환경 설정</h3>
+      <table>
+        <tbody><tr>
+          <th>보안 레벨</th>
+          <th>특징</th>
+          <th>필요 도구</th>
+        </tr>
+        <tr>
+          <td>Low</td>
+          <td>검증 없음</td>
+          <td>텍스트 에디터, PHP 웹쉘</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>MIME 타입 검증</td>
+          <td>Burp Suite, 파일 조작 도구</td>
+        </tr>
+        <tr>
+          <td>High</td>
+          <td>파일 확장자 검증</td>
+          <td>이미지 에디터, 스테가노그래피</td>
+        </tr>
+      </tbody></table>
+
+      <h3>5.4 실습 문제</h3>
+
+      <div class="security-level">Low Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 기본 PHP 웹쉘 업로드</strong><br>
+        간단한 PHP 웹쉘 파일을 생성하고 업로드해보세요: <code>&lt;?php system($_GET['cmd']); ?&gt;</code> <br><strong>목표:</strong>
+        서버에서 임의의 명령 실행
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 파일 정보 확인</strong><br>
+        PHP info 파일을 업로드하여 서버 정보를 확인해보세요: <code>&lt;?php phpinfo(); ?&gt;</code> <br><strong>목표:</strong>
+        서버 환경 정보 수집
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 리버스 쉘 구현</strong><br>
+        PHP 리버스 쉘 스크립트를 업로드하여 원격 연결을 시도해보세요.
+        <br><strong>목표:</strong> 지속적인 서버 접근 확보
+      </div>
+
+      <div class="security-level">Medium Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: MIME 타입 우회</strong><br>
+        Burp Suite를 사용하여 Content-Type 헤더를 이미지 타입으로 변조해보세요.
+        <br><strong>목표:</strong> MIME 타입 검증 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: 파일명 조작</strong><br>
+        업로드 과정에서 파일명을 조작하여 검증을 우회해보세요.
+        <br><strong>목표:</strong> 클라이언트 사이드 검증 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 더블 확장자</strong><br>
+        .php.jpg, .phtml 등의 더블 확장자나 대체 확장자를 사용해보세요.
+        <br><strong>목표:</strong> 확장자 필터링 우회
+      </div>
+
+      <div class="security-level">High Security Level 실습</div>
+      <div class="problem-box">
+        <strong>문제 1: 이미지 파일에 코드 삽입</strong><br>
+        실제 이미지 파일에 PHP 코드를 삽입하여 업로드해보세요.
+        <br><strong>목표:</strong> 이미지 검증 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 2: GIF 헤더를 이용한 우회</strong><br>
+        GIF89a 헤더를 추가한 PHP 파일로 이미지 검증을 우회해보세요.
+        <br><strong>목표:</strong> 파일 시그니처 검증 우회
+      </div>
+
+      <div class="problem-box">
+        <strong>문제 3: 파일 포함과 연계</strong><br>
+        업로드된 이미지 파일을 LFI를 통해 실행시켜보세요.
+        <br><strong>목표:</strong> 복합 공격 기법 활용
+      </div>
+
+      <h3>5.5 예상 결과</h3>
+      <div class="info-box">
+        <strong>성공 지표:</strong>
+        <ul>
+          <li>Low: "../../hackable/uploads/webshell.php succesfully uploaded!" 메시지</li>
+          <li>Medium: MIME 타입 우회 후 성공적인 업로드</li>
+          <li>High: 이미지 위장 파일로 업로드 후 코드 실행</li>
+        </ul>
+        <strong>일반적 오류:</strong> "Your image was not uploaded" 또는 파일 타입 제한 메시지
+      </div>
+
+      <h3>5.6 방어 기법</h3>
+      <ul>
+        <li><strong>화이트리스트 검증:</strong> 허용된 파일 확장자만 업로드 허용</li>
+        <li><strong>파일 시그니처 검증:</strong> 매직 넘버로 실제 파일 타입 확인</li>
+        <li><strong>파일 재명명:</strong> 업로드된 파일명을 임의로 변경</li>
+        <li><strong>실행 권한 제거:</strong> 업로드 디렉토리의 스크립트 실행 금지</li>
+        <li><strong>바이러스 스캔:</strong> 업로드된 파일에 대한 악성코드 검사</li>
+      </ul>
+
+      <div class="code-block">
+        // 안전한 파일 업로드 구현 function secure_upload($file) { // 허용된 확장자 체크 $allowed_extensions = ['jpg',
+        'jpeg', 'png', 'gif']; $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)); if
+        (!in_array($file_extension, $allowed_extensions)) { return false; } // 파일 시그니처 검증 $finfo =
+        finfo_open(FILEINFO_MIME_TYPE); $mime_type = finfo_file($finfo, $file['tmp_name']); $allowed_mimes =
+        ['image/jpeg', 'image/png', 'image/gif']; if (!in_array($mime_type, $allowed_mimes)) { return false; } // 안전한
+        파일명 생성 $safe_filename = bin2hex(random_bytes(16)) . '.' . $file_extension; // 실행 권한 없는 디렉토리에
+        저장 $upload_path = '/var/www/uploads/' . $safe_filename; move_uploaded_file($file['tmp_name'], $upload_path);
+        return $safe_filename; }
+      </div>
+
+      <h3>5.7 실습 팁</h3>
+      <div class="tip-box">
+        <ul>
+          <li>웹쉘 예제: c99.php, r57.php, WSO shell</li>
+          <li>PHP 대체 확장자: .phtml, .php3, .php4, .php5, .phar</li>
+          <li>이미지 매직 바이트: JPEG (FF D8 FF), PNG (89 50 4E 47), GIF (47 49 46 38)</li>
+          <li>업로드 디렉토리 확인: /hackable/uploads/, /uploads/, /files/</li>
+        </ul>
+      </div>
+
+      <h3>5.8 참고 자료</h3>
+      <ul>
+        <li>
+          <a href="https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload">OWASP Unrestricted File Upload</a>
+        </li>
+        <li>
+          <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Upload%20Insecure%20Files">File Upload Payloads</a>
+        </li>
+        <li><a href="https://portswigger.net/web-security/file-upload">PortSwigger File Upload Vulnerabilities</a></li>
+      </ul>
+    </div>
+
+    <div id="sql-injection" class="vulnerability-section sql-injection">
+      <h2>6. SQL Injection (SQL 인젝션)</h2>
+
+      <h3>6.1 취약점 개요</h3>
+      <p>
+        SQL 인젝션은 웹 애플리케이션이 데이터베이스와 상호작용할 때 사용자 입력을 적절히 검증하지 않아 발생하는
+        취약점으로, 공격자가 악의적인 SQL 쿼리를 삽입하여 데이터베이스를 조작할 수 있게 합니다. OWASP Top 10 2021에서
+        "A03:2021 – Injection"의 대표적인 예시입니다.
+      </p>
+
+      <div class="info-box">
+        <strong>실제 사례:</strong> 2008년 Heartland Payment Systems 해킹에서 SQL 인젝션을 통해 1억 3천만 개의 신용카드
+        정보가 유출되었습니다.
+      </div>
+
+      <h3>6.2 공격 원리</h3>
+      <p>SQL 인젝션 공격 흐름:</p>
+      <ol>
+        <li>사용자 입력을 받는 웹 폼이나 URL 매개변수 식별</li>
+        <li>SQL 구문에 영향을 주는 특수문자 테스트 (' " \ ; --)</li>
+        <li>데이터베이스 에러 메시지 분석</li>
+        <li>UNION 기반 또는 Boolean 기반 인젝션 수행</li>
+        <li>데이터베이스 정보 추출 및 데이터 조작</li>
+      </ol>
+
+      <h3></h3>
+    </div>
+  
+
+</body></html>
